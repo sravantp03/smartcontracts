@@ -8,12 +8,12 @@ contract FundMe {
 
     using PriceConverter for uint256; // using library.
 
-    uint256 minimumUSD = 50;
+    uint256 public constant MINIMUM_USD = 50 * 1e18;
 
-    address payable public owner;
+    address payable public immutable i_owner;
 
     constructor() {
-        owner = payable(msg.sender); // setting owner of the contract.
+        i_owner = payable(msg.sender); // setting owner of the contract.
     }
 
     address[] public funders; // holds address of account who calls fund function.
@@ -21,7 +21,7 @@ contract FundMe {
     mapping(address => uint256) public addressToAmount;
 
     function fund() public payable {
-        require(msg.value.getConversionRate() >= minimumUSD, "not enough money");
+        require(msg.value.getConversionRate() >= MINIMUM_USD, "not enough money");
         funders.push(msg.sender);
         addressToAmount[msg.sender] += msg.value; // mapping address to amount sent. 
     }
@@ -36,13 +36,13 @@ contract FundMe {
         funders = new address[](0);
 
         // withdraw fund
-        (bool callSuccess, ) = owner.call{value: address(this).balance}("");
+        (bool callSuccess, ) = i_owner.call{value: address(this).balance}("");
         require(callSuccess, "Failed");
     }
 
     // only owner modifier
     modifier onlyOwner {
-        require(msg.sender == owner, "Not Owner");
+        require(msg.sender == i_owner, "Not Owner");
         _;
     }
 
