@@ -61,4 +61,13 @@ contract FundMe {
         _;
     }
 
+    // these functions catch the eth which is sent not using fund function and redirect to fund function
+    receive() external payable {
+        fund();
+    }
+
+    fallback() external payable {
+        fund();
+    }
+
 }
